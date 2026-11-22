@@ -1,0 +1,15 @@
+# One command:  docker compose up --build   ->  http://localhost:8000
+services:
+  db:
+    image: postgres:16-alpine
+    environment: {POSTGRES_USER: factory, POSTGRES_PASSWORD: factory, POSTGRES_DB: factory}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U factory"], interval: 3s, retries: 20}
+  web:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg2://factory:factory@db:5432/factory
+      SECRET_KEY: change-me-in-production
+    depends_on: {db: {condition: service_healthy}}
+    ports: ["8000:8000"]
+volumes: {pgdata: {}}
