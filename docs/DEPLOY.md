@@ -23,6 +23,10 @@ so open the link once before the evaluators do.
 **Any machine with Docker:** `docker compose up --build` then open http://localhost:8000.
 
 ## 3. Demo video (max 8 minutes)
+A ready-made narrated walkthrough, `walkthrough.mp4` (about 4.5 minutes, synthetic voice), was generated from the real app
+with `python scripts/make_demo_video.py out_dir` (needs weasyprint, ffmpeg, espeak-ng, poppler). You can upload it as is
+(YouTube *Unlisted* or Drive) or record your own live version as described below, which usually reads better to evaluators.
+
 Follow `docs/DEMO_SCRIPT.md` step by step. Reset the data first with `python -m app.seed --reset`.
 Record with any screen recorder (Windows: Win+G; macOS: Shift+Cmd+5; or OBS). Show a phone-width browser window for the
 salesman steps (browser dev tools, device toolbar). Upload to YouTube as *Unlisted* or to Google Drive with link sharing on.

@@ -99,7 +99,8 @@ standard 10, so it is flagged; pouches used 194 against 200 is -3.00%, exactly o
 * Security hardening is basic: signed session cookie (SameSite=Lax) but no CSRF tokens, no rate limiting.
   Set `SECRET_KEY` for any real deployment.
 * The full test suite passes on SQLite and on PostgreSQL 16. The Docker Compose file and `render.yaml` themselves were not run.
-* There is no hosted link and no demo video in this repository: see `docs/DEPLOY.md` to publish, and record the video from `docs/DEMO_SCRIPT.md`.
+* No hosted link is included (it needs your own Render/hosting account; see `docs/DEPLOY.md`).
+* `walkthrough.mp4` (about 4.5 minutes, outside the repo) is a narrated, captioned walkthrough generated from the running app by `scripts/make_demo_video.py`. The voice is synthetic and it is not a live screen recording, so re-record your own from `docs/DEMO_SCRIPT.md` if you prefer.
 * Reports aggregate in Python, which is fine for one factory but is not tuned for very large ledgers.
 
 ## Layout
