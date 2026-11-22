@@ -72,7 +72,15 @@ lost); otherwise IGST. Invoices snapshot rate, HSN and tax and are numbered `INV
 Posted invoices are cancelled with a credit note `CN/<FY>/<seq>`, which returns dispatched stock through a RETURN
 ledger row; invoices are never deleted.
 
-## 6. Roles
+## 6. First-expiry-first-out
+
+Each production run stamps its batch number and expiry on the finished-goods ledger rows. Dispatch groups the item's
+ledger by batch, orders batches by expiry (stock with no batch, i.e. opening stock, counts as oldest) and writes one
+DISPATCH row per batch used. The total value removed is still the weighted-average value, split across the batches in
+proportion to quantity with the remainder on the last row, so no paisa is lost. A credit note reverses each row into the
+same batch.
+
+## 7. Roles
 
 salesman: own orders only. admin: orders, invoices, dispatch, payments, masters. production: purchases, runs, stock
 adjustments. accountant and owner: read-only reports, invoices and stock; owner also gets the dashboard.

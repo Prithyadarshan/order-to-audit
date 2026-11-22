@@ -79,3 +79,13 @@ def test_roles_are_enforced(client):
     assert client.post("/invoices/1/dispatch").status_code == 403 and client.get("/purchases").status_code == 403
     client.cookies.clear()
     assert client.get("/stock", follow_redirects=False).headers["location"] == "/login"
+
+
+def test_tamil_interface_for_floor_staff(client):
+    login(client, "production", "prod123")
+    assert "உற்பத்தி" not in client.get("/runs").text
+    client.get("/lang/ta", headers={"referer": "/runs"})
+    page = client.get("/runs").text
+    assert "உற்பத்தி பதிவுகள்" in page and "கொள்முதல்" in page and "இருப்பு" in page
+    assert "நல்ல பாக்கெட்டுகள்" in client.get("/runs/new").text or "செய்முறையை ஏற்று" in client.get("/runs/new").text
+    client.get("/lang/en"); assert "Production runs" in client.get("/runs").text

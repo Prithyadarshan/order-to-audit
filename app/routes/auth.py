@@ -21,7 +21,9 @@ def login(request: Request, username: str = Form(...), password: str = Form(...)
     if not user or not user.active or not verify_password(password, user.pw_hash):
         flash(request, "Wrong username or password", "err")
         return redirect("/login")
+    lang = request.session.get("lang", "en")
     request.session.clear()
+    request.session["lang"] = lang
     request.session["uid"] = user.id
     audit.log(db, user, "user", user.id, "login")
     db.commit()
@@ -32,3 +34,9 @@ def login(request: Request, username: str = Form(...), password: str = Form(...)
 def logout(request: Request):
     request.session.clear()
     return redirect("/login")
+
+
+@router.get("/lang/{code}")
+def set_language(code: str, request: Request):
+    request.session["lang"] = "ta" if code == "ta" else "en"
+    return redirect(request.headers.get("referer") or "/")

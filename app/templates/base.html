@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{% block title %}Order-to-Audit{% endblock %}</title><link rel="stylesheet" href="/static/app.css"></head><body>
 {% if user %}<header class="top"><a class="brand" href="/">Order to Audit</a><button class="menu" aria-label="Menu" onclick="document.body.classList.toggle('navopen')">☰</button>
-<nav>{% for label,href in nav %}<a href="{{href}}" class="{{'on' if path==href or (href!='/' and path.startswith(href))}}">{{label}}</a>{% endfor %}</nav>
-<div class="who">{{user.full_name}} ({{user.role}}) <a href="/logout">Sign out</a></div></header>{% endif %}
+<nav>{% for label,href in nav %}<a href="{{href}}" class="{{'on' if path==href or (href!='/' and path.startswith(href))}}">{{ t(label) }}</a>{% endfor %}</nav>
+<div class="who"><a href="/lang/{{'en' if lang=='ta' else 'ta'}}">{{'English' if lang=='ta' else 'தமிழ்'}}</a> {{user.full_name}} ({{user.role}}) <a href="/logout">{{ t("Sign out") }}</a></div></header>{% endif %}
 <main>{% if flash %}<div class="flash {{flash[0]}}" role="status">{{flash[1]}}</div>{% endif %}{% block body %}{% endblock %}</main></body></html>

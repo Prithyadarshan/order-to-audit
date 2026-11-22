@@ -12,3 +12,6 @@ Use a phone-sized browser window for steps 4 and 6, a desktop window for the res
 8. (6:15) Production run page: add labour 1,200 and gas/power 600. Cost per packet Rs 31.14, margin.
 9. (6:45) Accountant: Reports, open Sales register, GST summary, Stock ledger, Production, Outstanding; export one to Excel and one to PDF.
 10. (7:30) Owner: dashboard with variance alerts, cost per packet, outstanding dues.
+
+Optional if time is left (skip rather than go over 8 minutes): on the invoice page show "Dispatched from batches" (first-expiry-first-out),
+the e-Invoice JSON (mock); in Reports the Tally XML link; the தமிழ் switch as the production user; the Visits page as salesman_a.

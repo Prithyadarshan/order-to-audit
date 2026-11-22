@@ -2,14 +2,23 @@
 from fastapi import Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from jinja2 import pass_context
 
 from .config import BASE_DIR, FACTORY
 from .db import get_db
+from .i18n import TA
 from .models import User
 from .money import fmt_qty, inr, paise_str
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
-templates.env.globals.update(inr=inr, fmt_qty=fmt_qty, paise=paise_str, FACTORY=FACTORY)
+
+
+@pass_context
+def t(ctx, text: str) -> str:
+    return TA.get(text, text) if ctx.get("lang") == "ta" else text
+
+
+templates.env.globals.update(t=t, inr=inr, fmt_qty=fmt_qty, paise=paise_str, FACTORY=FACTORY)
 
 NAV = {
     "salesman": [("New order", "/orders/new"), ("My orders", "/orders"), ("My sales", "/my-sales"), ("Visits", "/visits")],
@@ -44,7 +53,7 @@ def require(*roles):
 def render(request: Request, name: str, user: User | None = None, status_code: int = 200, **ctx):
     flash = request.session.pop("flash", None)
     return templates.TemplateResponse(request, name, {"user": user, "nav": NAV.get(user.role, []) if user else [], "flash": flash,
-                                                      "path": request.url.path, **ctx}, status_code=status_code)
+                                                      "path": request.url.path, "lang": request.session.get("lang", "en"), **ctx}, status_code=status_code)
 
 
 def flash(request: Request, msg: str, kind: str = "ok"):

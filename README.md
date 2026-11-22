@@ -14,7 +14,8 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload        # http://localhost:8000  (seeds the Section 5 data on first start)
 
-python -m pytest -q                  # 13 tests, including the whole Section 5 benchmark
+python -m pytest -q                  # 18 tests, including the whole Section 5 benchmark
+TEST_DATABASE_URL=postgresql+psycopg2://user:pw@host/db python -m pytest -q   # same suite on PostgreSQL
 python -m app.benchmark              # prints expected vs actual for every benchmark check (resets the local DB)
 python -m app.seed --reset           # reload the seed data, e.g. before recording the demo
 ```
@@ -43,10 +44,15 @@ consumption and yield with variance; stock summary and ledger; sales register an
 **Should have:** purchases and suppliers; payments, outstanding and ageing; cost per packet with overheads and margin;
 GST summary shaped like GSTR-1 / 3B; variance alerts beyond 3%; owner dashboard.
 
-**Stretch done:** offline order capture with automatic sync (localStorage queue, idempotent `client_ref`, service
-worker for the order screen); batch number and expiry date per run (stamped on the finished-goods ledger rows,
-**not** first-expiry-first-out); reorder levels with low-stock flags; production planning from open orders
-("make N batches"); credit notes that return stock; audit trail report; Excel and PDF exports of every report.
+**Stretch done:**
+* Offline order capture with automatic sync (localStorage queue, idempotent `client_ref`, service worker for the order screen).
+* Batch numbers and expiry dates, with **first-expiry-first-out dispatch**: each dispatch takes stock from the batches that expire first (opening stock counts as oldest), one ledger row per batch, shown on the invoice page.
+* Reorder levels with low-stock flags, and production planning from open orders ("make N batches").
+* **Tally import file** (XML): one Sales voucher per invoice and one Receipt per payment, each balancing to zero. Ledger names must exist in Tally (see `app/integrations.py`).
+* **e-Invoice (NIC v1.1 shape) and e-Way bill JSON, mocked**: downloadable from the invoice page, IRN computed locally with the real SHA-256 recipe but never sent to any government portal.
+* **Salesman visit log with GPS check-in**: phone location, accuracy, map link; admin sees all visits.
+* **Tamil interface** for navigation, purchases, production, stock and sign-in (switch with the தமிழ் link). The Tamil was written by an AI model: have a Tamil speaker proofread it. Messages and the other screens stay in English.
+* Credit notes that return stock, an audit-trail report, and Excel/PDF exports of every report.
 
 ## Benchmark results (`python -m app.benchmark`, all 20 checks pass)
 
@@ -87,13 +93,13 @@ standard 10, so it is flagged; pouches used 194 against 200 is -3.00%, exactly o
 
 ## Known gaps
 
-* Not done: first-expiry-first-out dispatch, partial dispatch, returns other than full credit-note cancellation,
-  Tally export, e-invoice/e-way bill, GPS visit log, Tamil UI, customer-specific prices, input GST on purchases,
-  monthly shared-overhead allocation (overheads are per run), password change/user management screens.
+* Not done: partial dispatch, returns other than full credit-note cancellation, customer-specific prices, input GST on
+  purchases, monthly shared-overhead allocation (overheads are per run), password change/user management screens.
+* The e-invoice and e-way bill files are mock payloads only; the IRN is not issued by the government portal.
 * Security hardening is basic: signed session cookie (SameSite=Lax) but no CSRF tokens, no rate limiting.
   Set `SECRET_KEY` for any real deployment.
-* The Docker Compose / PostgreSQL path is written but was not run where this was developed; the tests ran on SQLite.
-* There is no hosted link and no demo video in this repository: record the video from the steps in `docs/DEMO_SCRIPT.md`.
+* The full test suite passes on SQLite and on PostgreSQL 16. The Docker Compose file and `render.yaml` themselves were not run.
+* There is no hosted link and no demo video in this repository: see `docs/DEPLOY.md` to publish, and record the video from `docs/DEMO_SCRIPT.md`.
 * Reports aggregate in Python, which is fine for one factory but is not tuned for very large ledgers.
 
 ## Layout
@@ -103,6 +109,8 @@ app/models.py        schema            app/money.py     paise, units, GST, numbe
 app/services/        stock, production, sales, purchasing, audit (all business rules)
 app/reports.py       12 reports        app/exports.py   CSV / Excel / PDF / invoice PDF
 app/routes/ + templates/ + static/     web layer         app/benchmark.py  Section 5 scenario
-tests/               money, ledger, benchmark, credit note, HTTP end-to-end, role access
+app/integrations.py  Tally XML, mock e-invoice / e-way bill      app/i18n.py   Tamil labels
+tests/               money, ledger, benchmark, FEFO, credit note, Tally/e-invoice, visits, Tamil, HTTP end-to-end, roles
 docs/DESIGN.md       data model, stock and BOM maths, costing method
+docs/DEPLOY.md       GitHub push, Render deploy, video steps     docs/DEMO_SCRIPT.md
 ```

@@ -8,6 +8,9 @@ ROOT = BASE_DIR.parent
 
 # SQLite by default (zero setup); docker-compose points this at PostgreSQL.
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{ROOT / 'data' / 'factory.db'}")
+for _old in ("postgres://", "postgresql://"):  # hosts such as Render hand out these short forms
+    if DATABASE_URL.startswith(_old):
+        DATABASE_URL = "postgresql+psycopg2://" + DATABASE_URL[len(_old):]
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me")
 
 # Variance beyond this (percent, absolute) is flagged on production runs.
