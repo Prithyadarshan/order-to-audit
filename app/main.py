@@ -10,7 +10,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from .config import BASE_DIR, SECRET_KEY
 from .db import Base, SessionLocal, engine
 from .errors import BusinessError
-from .routes import auth, masters, production, reports, sales
+from .routes import auth, masters, production, reports, sales, visits
 from .seed import seed
 from .web import LoginRequired, flash, render
 
@@ -26,7 +26,7 @@ async def lifespan(_):
 app = FastAPI(title="Order-to-Audit", lifespan=lifespan)
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY, same_site="lax", max_age=int(timedelta(hours=12).total_seconds()))
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
-for r in (auth, sales, production, masters, reports):
+for r in (auth, sales, production, masters, reports, visits):
     app.include_router(r.router)
 
 

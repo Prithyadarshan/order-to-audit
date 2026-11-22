@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import Response
 from sqlalchemy import select
 
-from .. import exports, reports as rp
+from .. import exports, integrations, reports as rp
 from ..db import get_db
 from ..errors import BusinessError
-from ..models import Item
+from ..models import Invoice, Item, Payment
 from ..web import get_user, render, require
 
 router = APIRouter()
@@ -46,3 +46,14 @@ def report(key: str, request: Request, fmt: str = "html", item_id: int = 0, user
         return Response(exports.to_pdf(rep, sub), media_type="application/pdf", headers={"Content-Disposition": f'inline; filename="{name}.pdf"'})
     items = db.scalars(select(Item).order_by(Item.kind, Item.name)).all() if key == "stock-ledger" else []
     return render(request, "report.html", user, rep=rep, key=key, d_from=d_from, d_to=d_to, items=items, item_id=item_id, sub=sub)
+
+
+@router.get("/exports/tally.xml")
+def tally(request: Request, user=Depends(require("admin", "accountant", "owner")), db=Depends(get_db)):
+    q = request.query_params
+    d_to = date.fromisoformat(q.get("to") or date.today().isoformat())
+    d_from = date.fromisoformat(q.get("from") or d_to.replace(day=1).isoformat())
+    invs = db.scalars(select(Invoice).where(Invoice.date >= d_from, Invoice.date <= d_to).order_by(Invoice.date, Invoice.seq)).all()
+    pays = db.scalars(select(Payment).where(Payment.date >= d_from, Payment.date <= d_to).order_by(Payment.id)).all()
+    return Response(integrations.tally_xml(invs, pays), media_type="application/xml",
+                    headers={"Content-Disposition": f'attachment; filename="tally-{d_from}-{d_to}.xml"'})

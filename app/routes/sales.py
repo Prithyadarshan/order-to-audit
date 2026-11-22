@@ -1,3 +1,4 @@
+import json
 from datetime import date
 from urllib.parse import quote
 
@@ -5,7 +6,7 @@ from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import JSONResponse, Response
 from sqlalchemy import select
 
-from .. import exports
+from .. import exports, integrations
 from ..config import FACTORY
 from ..db import get_db
 from ..errors import BusinessError
@@ -174,3 +175,21 @@ def inv_cancel(iid: int, request: Request, reason: str = Form(""), user=Depends(
     cn = sales.cancel_invoice(db, user, db.get(Invoice, iid), reason)
     db.commit(); flash(request, f"Invoice cancelled with credit note {cn.cn_no}.")
     return redirect(f"/invoices/{iid}")
+
+
+@router.get("/invoices/{iid:int}/einvoice.json")
+def invoice_einvoice(iid: int, user=Depends(require(*VIEW_INV)), db=Depends(get_db)):
+    inv = db.get(Invoice, iid)
+    if not inv:
+        raise BusinessError("Invoice not found")
+    return Response(json.dumps(integrations.einvoice_json(inv), indent=2), media_type="application/json",
+                    headers={"Content-Disposition": f'attachment; filename="einvoice-{inv.inv_no.replace("/", "-")}.json"'})
+
+
+@router.get("/invoices/{iid:int}/ewaybill.json")
+def invoice_ewaybill(iid: int, vehicle: str = "TN00AA0000", km: int = 0, user=Depends(require(*VIEW_INV)), db=Depends(get_db)):
+    inv = db.get(Invoice, iid)
+    if not inv:
+        raise BusinessError("Invoice not found")
+    return Response(json.dumps(integrations.ewaybill_json(inv, vehicle, km), indent=2), media_type="application/json",
+                    headers={"Content-Disposition": f'attachment; filename="ewaybill-{inv.inv_no.replace("/", "-")}.json"'})

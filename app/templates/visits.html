@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block body %}<h1>Customer visits</h1>
+{% if user.role=="salesman" %}<div id="msg" class="flash" hidden role="status"></div>
+<form id="form" class="card"><label for="customer">Customer you are visiting</label><select id="customer" required><option value="">Choose a customer</option>{% for c in customers %}<option value="{{c.id}}">{{c.name}}</option>{% endfor %}</select>
+<label for="note">Note (optional)</label><input id="note" maxlength="200"><p><button class="big">Check in here</button></p><p class="muted">Your phone will ask permission to share its location. Without it the visit is saved without a position.</p></form>
+<script>
+const $=s=>document.querySelector(s),say=(t,c)=>{$("#msg").hidden=false;$("#msg").className="flash "+(c||"");$("#msg").textContent=t};
+$("#form").onsubmit=e=>{e.preventDefault();if(!$("#customer").value)return say("Choose a customer first.","err");
+ const send=pos=>fetch("/api/visits",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({customer_id:$("#customer").value,note:$("#note").value,
+  lat:pos?pos.coords.latitude:null,lon:pos?pos.coords.longitude:null,accuracy:pos?pos.coords.accuracy:null})}).then(r=>r.json()).then(j=>{if(j.ok){say("Checked in.");setTimeout(()=>location.reload(),600)}else say(j.error,"err")}).catch(()=>say("No connection. Try again when you have signal.","err"));
+ navigator.geolocation?navigator.geolocation.getCurrentPosition(send,()=>send(null),{enableHighAccuracy:true,timeout:8000}):send(null)};
+</script>{% endif %}
+<div class="tw"><table><tr><th>When</th>{% if user.role!="salesman" %}<th>Salesman</th>{% endif %}<th>Customer</th><th>Position</th><th>Note</th></tr>
+{% for v in visits %}<tr><td>{{v.ts}}</td>{% if user.role!="salesman" %}<td>{{v.salesman.full_name}}</td>{% endif %}<td>{{v.customer.name}}</td>
+<td>{% if v.lat is not none %}<a href="https://www.google.com/maps?q={{v.lat}},{{v.lon}}" target="_blank" rel="noopener">{{"%.5f"|format(v.lat)}}, {{"%.5f"|format(v.lon)}}</a> (±{{v.accuracy_m|int if v.accuracy_m else "?"}} m){% else %}no GPS{% endif %}</td><td>{{v.note or ""}}</td></tr>{% endfor %}</table></div>{% endblock %}

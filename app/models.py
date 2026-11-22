@@ -6,7 +6,7 @@ A balance is always SUM(ledger) - it is never stored or overwritten.
 import datetime as dt
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, Date, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import BigInteger, Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -297,3 +297,18 @@ class AuditLog(Base):
     action: Mapped[str] = mapped_column(String(30))
     detail: Mapped[str | None] = mapped_column(Text)
     user = relationship("User")
+
+
+class Visit(Base):
+    """Salesman check-in at a customer, with GPS position when the phone provides one."""
+    __tablename__ = "visits"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    salesman_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    customer_id: Mapped[int] = mapped_column(ForeignKey("customers.id"))
+    ts: Mapped[datetime] = mapped_column(DateTime, default=now)
+    lat: Mapped[float | None] = mapped_column(Float)
+    lon: Mapped[float | None] = mapped_column(Float)
+    accuracy_m: Mapped[float | None] = mapped_column(Float)
+    note: Mapped[str | None] = mapped_column(String(200))
+    salesman = relationship("User")
+    customer = relationship("Customer")

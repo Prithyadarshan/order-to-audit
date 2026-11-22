@@ -1,1 +1,1 @@
-{% extends "base.html" %}{% block body %}<h1>Reports</h1><div class="grid">{% for k,l in keys %}<a class="card" href="/reports/{{k}}">{{l}}</a>{% endfor %}</div>{% endblock %}
+{% extends "base.html" %}{% block body %}<h1>Reports</h1><div class="grid">{% for k,l in keys %}<a class="card" href="/reports/{{k}}">{{l}}</a>{% endfor %}{% if user.role in ["admin","accountant","owner"] %}<a class="card" href="/exports/tally.xml">Tally import file (XML) for this month<br><span class="muted">Sales and receipt vouchers</span></a>{% endif %}</div>{% endblock %}

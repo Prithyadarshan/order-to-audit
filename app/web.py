@@ -12,8 +12,8 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 templates.env.globals.update(inr=inr, fmt_qty=fmt_qty, paise=paise_str, FACTORY=FACTORY)
 
 NAV = {
-    "salesman": [("New order", "/orders/new"), ("My orders", "/orders"), ("My sales", "/my-sales")],
-    "admin": [("Dashboard", "/"), ("Orders", "/orders"), ("Invoices", "/invoices"), ("Customers", "/customers"),
+    "salesman": [("New order", "/orders/new"), ("My orders", "/orders"), ("My sales", "/my-sales"), ("Visits", "/visits")],
+    "admin": [("Dashboard", "/"), ("Orders", "/orders"), ("Invoices", "/invoices"), ("Visits", "/visits"), ("Customers", "/customers"),
               ("Products", "/items"), ("Recipes", "/bom"), ("Stock", "/stock"), ("Reports", "/reports")],
     "production": [("Dashboard", "/"), ("Purchases", "/purchases"), ("Production", "/runs"), ("Recipes", "/bom"), ("Stock", "/stock"), ("Reports", "/reports")],
     "accountant": [("Dashboard", "/"), ("Invoices", "/invoices"), ("Stock", "/stock"), ("Reports", "/reports")],
