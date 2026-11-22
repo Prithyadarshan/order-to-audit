@@ -3,7 +3,8 @@
 The heart of the design is StockLedger: an append-only table of signed movements.
 A balance is always SUM(ledger) - it is never stored or overwritten.
 """
-from datetime import date, datetime
+import datetime as dt
+from datetime import datetime
 
 from sqlalchemy import BigInteger, Boolean, Date, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -73,7 +74,7 @@ class Purchase(Base):
     ref: Mapped[str] = mapped_column(String(20), unique=True)
     supplier_id: Mapped[int] = mapped_column(ForeignKey("suppliers.id"))
     bill_no: Mapped[str | None] = mapped_column(String(40))
-    date: Mapped[date] = mapped_column(Date)
+    date: Mapped[dt.date] = mapped_column(Date)
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
     supplier = relationship("Supplier")
@@ -122,14 +123,14 @@ class ProductionRun(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     run_no: Mapped[str] = mapped_column(String(20), unique=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("items.id"))
-    date: Mapped[date] = mapped_column(Date)
+    date: Mapped[dt.date] = mapped_column(Date)
     batches: Mapped[int] = mapped_column(Integer, default=1)
     status: Mapped[str] = mapped_column(String(12), default="ISSUED")  # ISSUED -> COMPLETED
     expected_output: Mapped[int] = mapped_column(BigInteger)
     good_output: Mapped[int | None] = mapped_column(BigInteger)
     wastage_packets: Mapped[int] = mapped_column(BigInteger, default=0)
     batch_no: Mapped[str | None] = mapped_column(String(40))
-    expiry: Mapped[date | None] = mapped_column(Date)
+    expiry: Mapped[dt.date | None] = mapped_column(Date)
     notes: Mapped[str | None] = mapped_column(Text)
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime)
@@ -167,7 +168,7 @@ class StockLedger(Base):
     __tablename__ = "stock_ledger"
     id: Mapped[int] = mapped_column(primary_key=True)
     ts: Mapped[datetime] = mapped_column(DateTime, default=now)
-    entry_date: Mapped[date] = mapped_column(Date, index=True)
+    entry_date: Mapped[dt.date] = mapped_column(Date, index=True)
     item_id: Mapped[int] = mapped_column(ForeignKey("items.id"), index=True)
     qty_base: Mapped[int] = mapped_column(BigInteger)
     value_paise: Mapped[int] = mapped_column(BigInteger)
@@ -221,7 +222,7 @@ class Invoice(Base):
     seq: Mapped[int] = mapped_column(Integer)
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
     customer_id: Mapped[int] = mapped_column(ForeignKey("customers.id"))
-    date: Mapped[date] = mapped_column(Date)
+    date: Mapped[dt.date] = mapped_column(Date)
     place_of_supply: Mapped[str] = mapped_column(String(40))
     intra_state: Mapped[bool] = mapped_column(Boolean)
     taxable_paise: Mapped[int] = mapped_column(BigInteger)
@@ -265,7 +266,7 @@ class CreditNote(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     cn_no: Mapped[str] = mapped_column(String(25), unique=True)
     invoice_id: Mapped[int] = mapped_column(ForeignKey("invoices.id"), unique=True)
-    date: Mapped[date] = mapped_column(Date)
+    date: Mapped[dt.date] = mapped_column(Date)
     amount_paise: Mapped[int] = mapped_column(BigInteger)
     reason: Mapped[str] = mapped_column(String(200))
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -277,7 +278,7 @@ class Payment(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     customer_id: Mapped[int] = mapped_column(ForeignKey("customers.id"))
     invoice_id: Mapped[int] = mapped_column(ForeignKey("invoices.id"))
-    date: Mapped[date] = mapped_column(Date)
+    date: Mapped[dt.date] = mapped_column(Date)
     amount_paise: Mapped[int] = mapped_column(BigInteger)
     mode: Mapped[str] = mapped_column(String(15), default="cash")
     ref: Mapped[str | None] = mapped_column(String(40))
