@@ -52,7 +52,7 @@ def test_credit_note_returns_stock_and_keeps_invoice(db):
 
 def test_fefo_dispatch_takes_earliest_expiry_first(db):
     from datetime import date, timedelta
-    from app.models import Customer, StockLedger, User
+    from app.models import Customer, Item, StockLedger, User
     from app.services import production, sales
     seed(db)
     admin = db.scalar(select(User).where(User.username == "admin"))
