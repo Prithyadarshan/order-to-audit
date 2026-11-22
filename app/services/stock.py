@@ -4,7 +4,7 @@ from datetime import date
 from sqlalchemy import func, select
 
 from ..errors import StockError
-from ..models import StockLedger
+from ..models import ProductionRun, StockLedger
 from ..money import fmt_qty, round_div
 
 
@@ -65,3 +65,38 @@ def adjust(db, user, item, qty: int, reason: str, entry_date=None):
     value = round_div(bv * qty, bq) if bq > 0 else 0
     post(db, item, qty, value, "ADJUST", user=user, note=reason, entry_date=entry_date)
     return value
+
+
+def batch_balances(db, item_id: int) -> list[tuple[str | None, int]]:
+    """(batch_no, qty) with stock on hand, oldest expiry first. Stock without a batch (opening balance)
+    counts as oldest. This is what first-expiry-first-out dispatch consumes."""
+    rows = db.execute(select(StockLedger.batch_no, func.sum(StockLedger.qty_base)).where(StockLedger.item_id == item_id)
+                      .group_by(StockLedger.batch_no)).all()
+    live = [(b, int(q)) for b, q in rows if q and int(q) > 0]
+    exp = {b: e for b, e in db.execute(select(ProductionRun.batch_no, ProductionRun.expiry)
+                                       .where(ProductionRun.batch_no.in_([b for b, _ in live if b])))}
+    return sorted(live, key=lambda x: (x[0] is not None, exp.get(x[0]) or date.min, x[0] or ""))
+
+
+def issue_fefo(db, item, qty: int, doc_type: str, **kw) -> int:
+    """Like issue(), but takes stock from the batches that expire first. One ledger row per batch used,
+    the total value is the weighted-average value split in proportion to quantity."""
+    if qty <= 0:
+        raise StockError(f"Quantity for {item.name} must be positive")
+    have, _ = balance(db, item.id)
+    if qty > have:
+        raise StockError(f"Insufficient stock of {item.name}: have {fmt_qty(item, have)} {item.display_unit}, "
+                         f"need {fmt_qty(item, qty)} {item.display_unit}")
+    total = wac_value(db, item.id, qty)
+    remaining, spent, parts = qty, 0, []
+    for batch, bq in batch_balances(db, item.id):
+        if remaining == 0:
+            break
+        take = min(bq, remaining)
+        parts.append((batch, take))
+        remaining -= take
+    for n, (batch, take) in enumerate(parts):
+        value = total - spent if n == len(parts) - 1 else round_div(total * take, qty)
+        spent += value
+        post(db, item, -take, -value, doc_type, batch_no=batch, **kw)
+    return total

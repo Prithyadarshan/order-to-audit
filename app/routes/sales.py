@@ -9,7 +9,7 @@ from .. import exports
 from ..config import FACTORY
 from ..db import get_db
 from ..errors import BusinessError
-from ..models import Customer, Invoice, Item, Order
+from ..models import Customer, Invoice, Item, Order, StockLedger
 from ..money import allowed_units, inr, rupees_to_paise, to_base, paise_str
 from ..services import sales
 from ..web import flash, redirect, render, require
@@ -136,7 +136,8 @@ def invoice_detail(iid: int, request: Request, user=Depends(require(*VIEW_INV)),
         raise BusinessError("Invoice not found")
     link = str(request.base_url) + f"invoices/{inv.id}/pdf"
     text = f"Invoice {inv.inv_no} from {FACTORY['name']} for {inv.customer.name}: {inv_total(inv)}. Download: {link}"
-    return render(request, "invoice_detail.html", user, inv=inv, due=sales.outstanding(inv), paid=sales.paid(inv),
+    batches = db.scalars(select(StockLedger).where(StockLedger.doc_type == "DISPATCH", StockLedger.doc_id == inv.id)).all()
+    return render(request, "invoice_detail.html", user, inv=inv, due=sales.outstanding(inv), paid=sales.paid(inv), batches=batches,
                   wa=f"https://wa.me/?text={quote(text)}", mail=f"mailto:?subject={quote('Invoice ' + inv.inv_no)}&body={quote(text)}")
 
 

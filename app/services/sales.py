@@ -150,7 +150,7 @@ def dispatch(db, user, inv: Invoice):
     if inv.dispatched_at:
         raise BusinessError("Already dispatched")
     for l in inv.lines:  # StockError propagates if short: nothing is posted (transaction rolls back)
-        stock.issue(db, l.item, l.qty, "DISPATCH", doc_id=inv.id, doc_ref=inv.inv_no, user=user)
+        stock.issue_fefo(db, l.item, l.qty, "DISPATCH", doc_id=inv.id, doc_ref=inv.inv_no, user=user)  # earliest expiry first
     inv.dispatched_at = now()
     inv.order.status = "DISPATCHED"
     audit.log(db, user, "invoice", inv.id, "dispatch", inv.inv_no)
@@ -193,7 +193,7 @@ def cancel_invoice(db, user, inv: Invoice, reason: str) -> CreditNote:
     if inv.dispatched_at:
         from ..models import StockLedger
         for row in db.scalars(select(StockLedger).where(StockLedger.doc_type == "DISPATCH", StockLedger.doc_id == inv.id)).all():
-            stock.post(db, row.item, -row.qty_base, -row.value_paise, "RETURN", doc_id=inv.id, doc_ref=cn.cn_no, user=user, note="Credit note " + cn.cn_no)
+            stock.post(db, row.item, -row.qty_base, -row.value_paise, "RETURN", doc_id=inv.id, doc_ref=cn.cn_no, user=user, note="Credit note " + cn.cn_no, batch_no=row.batch_no)
     inv.status = "CANCELLED"
     inv.order.status = "CANCELLED"
     db.flush()
