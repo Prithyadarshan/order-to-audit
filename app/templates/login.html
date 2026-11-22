@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block body %}<form method="post" class="card login"><h1>Sign in</h1>
+<label for="u">Username</label><input id="u" name="username" autocomplete="username" required autofocus>
+<label for="p">Password</label><input id="p" name="password" type="password" autocomplete="current-password" required>
+<p><button class="big">Sign in</button></p>
+<table class="hint"><tr><td>salesman_a / sales123</td><td>admin / admin123</td></tr><tr><td>production / prod123</td><td>accountant / acct123</td></tr><tr><td>owner / owner123</td><td>salesman_b / sales123</td></tr></table>
+<p class="muted">Demo logins. Each role sees only its own screens.</p></form>{% endblock %}

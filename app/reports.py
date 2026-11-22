@@ -216,7 +216,7 @@ def dashboard(db) -> dict:
         latest_cost.setdefault(s["run"].product.name, s)
     due = sum(sales.customer_outstanding(db, c.id) for c in db.scalars(select(Customer)))
     return {
-        "orders_today": db.scalar(select(func.count(Order.id)).where(func.date(Order.created_at) == today.isoformat())),
+        "orders_today": db.scalar(select(func.count(Order.id)).where(Order.created_at >= datetime.combine(today, datetime.min.time()))),
         "pending": db.scalar(select(func.count(Order.id)).where(Order.status == "SUBMITTED")),
         "sales_month": db.scalar(select(func.coalesce(func.sum(Invoice.total_paise), 0)).where(Invoice.status == "ISSUED", Invoice.date >= today.replace(day=1))),
         "stock": stock_rows, "low": [r for r in stock_rows if r["low"]],

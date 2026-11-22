@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block body %}<h1>Customers and suppliers</h1>
+<div class="tw"><table><tr><th>Name</th><th>Type</th><th>GSTIN</th><th>State</th><th>Phone</th></tr>{% for c in rows %}<tr><td>{{c.name}}</td><td>{{c.kind}}</td><td>{{c.gstin or "-"}}</td><td>{{c.state}}</td><td>{{c.phone or "-"}}</td></tr>{% endfor %}</table></div>
+<form method="post" action="/customers" class="card"><b>Add customer</b><div class="row"><div><label>Name</label><input name="name" required></div>
+<div><label>Type</label><select name="kind"><option>retailer</option><option>distributor</option></select></div><div><label>GSTIN</label><input name="gstin" maxlength="15"></div>
+<div><label>State (decides CGST+SGST or IGST)</label><input name="state" value="Tamil Nadu" required></div><div><label>Phone</label><input name="phone"></div><div><label>Address</label><input name="address"></div></div><p><button>Add customer</button></p></form>
+<h2>Suppliers</h2><div class="tw"><table><tr><th>Name</th><th>GSTIN</th><th>Phone</th></tr>{% for s in suppliers %}<tr><td>{{s.name}}</td><td>{{s.gstin or "-"}}</td><td>{{s.phone or "-"}}</td></tr>{% endfor %}</table></div>
+<form method="post" action="/suppliers" class="card"><b>Add supplier</b><div class="row"><div><label>Name</label><input name="name" required></div><div><label>GSTIN</label><input name="gstin"></div><div><label>Phone</label><input name="phone"></div></div><p><button>Add supplier</button></p></form>{% endblock %}

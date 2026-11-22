@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block title %}New order{% endblock %}{% block body %}<h1>New order</h1>
+<div id="queued" class="flash" hidden></div><div id="msg" class="flash" hidden role="status"></div>
+<form id="form" class="card"><label for="customer">Customer</label>
+<select id="customer" required><option value="">Choose a customer</option>{% for c in customers %}<option value="{{c.id}}">{{c.name}} ({{c.kind}})</option>{% endfor %}</select>
+<label>Products</label><div id="lines"></div><button type="button" id="add" class="alt">Add another product</button>
+<label for="note">Note for the factory (optional)</label><input id="note" maxlength="200">
+<p class="total" id="total"></p><button class="big">Send order</button></form>
+<script id="data" type="application/json">{{ {"products":products}|tojson }}</script><script src="/static/order.js"></script>{% endblock %}

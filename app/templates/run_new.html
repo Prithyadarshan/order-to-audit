@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block body %}<h1>Start a production run</h1>
+<form method="get" class="card"><div class="row"><div><label>Product</label><select name="product_id">{% for b in boms %}<option value="{{b.product_id}}" {{"selected" if bom and bom.id==b.id}}>{{b.product.name}}</option>{% endfor %}</select></div><button class="alt">Load recipe</button></div></form>
+{% if bom %}<form method="post" action="/runs" class="card"><input type="hidden" name="product_id" value="{{bom.product_id}}">
+<div class="row"><div><label>Batches</label><input name="batches" type="number" min="1" value="1"></div><div><label>Date</label><input type="date" name="date" value="{{today}}"></div><div><label>Notes</label><input name="notes"></div></div>
+<p class="muted">Standard for one batch of {{bom.yield_packets}} packets. Leave a quantity blank to issue exactly the standard; type what was really issued if it differs.</p>
+<div class="tw"><table><tr><th>Raw material</th><th class="r">Standard</th><th class="r">In stock</th><th>Actual issued</th><th>Unit</th></tr>
+{% for l in raw %}<tr><td>{{l.item.name}}</td><td class="r">{{fmt_qty(l.item,l.qty_base)}} {{l.item.display_unit}}</td><td class="r">{{fmt_qty(l.item,bals.get(l.item_id,(0,0))[0])}} {{l.item.display_unit}}</td><td><input name="issue_{{l.item_id}}" inputmode="decimal" placeholder="{{fmt_qty(l.item,l.qty_base)}}"></td>
+<td><select name="unit_{{l.item_id}}">{% for u in units[l.item_id] %}<option {{"selected" if u|lower==l.item.display_unit|lower}}>{{u}}</option>{% endfor %}</select></td></tr>{% endfor %}</table></div>
+<button>Issue materials and start</button></form>{% endif %}{% endblock %}

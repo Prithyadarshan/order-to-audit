@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block body %}<h1>{{rep.title}}</h1>
+<form method="get" class="card"><div class="row"><div><label>From</label><input type="date" name="from" value="{{d_from}}"></div><div><label>To</label><input type="date" name="to" value="{{d_to}}"></div>
+{% if items %}<div><label>Item</label><select name="item_id"><option value="0">All items</option>{% for i in items %}<option value="{{i.id}}" {{"selected" if i.id==item_id}}>{{i.name}}</option>{% endfor %}</select></div>{% endif %}<button>Show</button></div></form>
+<div class="actions">{% for f,l in [("csv","Excel / CSV"),("xlsx","Excel (.xlsx)"),("pdf","PDF")] %}<a class="btn alt" href="{{request.url.include_query_params(fmt=f)}}">{{l}}</a>{% endfor %}</div>
+{% for s in rep.sections %}{% if s.name %}<h2>{{s.name}}</h2>{% endif %}{% if s.rows %}<div class="tw"><table><tr>{% for h in s.headers %}<th>{{h}}</th>{% endfor %}</tr>
+{% for r in s.rows %}<tr>{% for c in r %}<td class="{{'flag' if c=='FLAG'}}">{{c}}</td>{% endfor %}</tr>{% endfor %}</table></div>{% else %}<p class="muted">Nothing in this period.</p>{% endif %}{% endfor %}{% endblock %}

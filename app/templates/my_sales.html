@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block body %}<h1>My sales by customer</h1>
+{% if rows %}<div class="tw"><table><tr><th>Customer</th><th class="r">Orders</th><th class="r">Value (before tax)</th></tr>
+{% for n,r in rows %}<tr><td>{{n}}</td><td class="r">{{r.orders}}</td><td class="r">{{inr(r.value)}}</td></tr>{% endfor %}
+<tr><td><b>Total</b></td><td></td><td class="r"><b>{{inr(total)}}</b></td></tr></table></div>{% else %}<p class="muted">Orders you take will be summed up here.</p>{% endif %}
+<a class="btn" href="/orders">See order status</a>{% endblock %}

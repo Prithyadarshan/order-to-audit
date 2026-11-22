@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block body %}<h1>Today at the factory</h1>
+<div class="grid"><div class="card"><div class="stat">{{d.orders_today}}</div>orders today</div>
+<div class="card"><div class="stat">{{d.pending}}</div>waiting for approval</div>
+<div class="card"><div class="stat">{{inr(d.sales_month)}}</div>invoiced this month</div>
+<div class="card"><div class="stat">{{inr(d.outstanding)}}</div>outstanding dues</div></div>
+<h2>Variance alerts</h2>
+{% if d.alerts %}<div class="tw"><table><tr><th>Run</th><th>Product</th><th>Beyond tolerance</th></tr>
+{% for s in d.alerts %}<tr><td><a href="/runs/{{s.run.id}}">{{s.run.run_no}}</a></td><td>{{s.run.product.name}}</td><td class="flag">{{s.alerts|join(" · ")}}</td></tr>{% endfor %}</table></div>
+{% else %}<p class="muted">No run is outside the tolerance.</p>{% endif %}
+<h2>Cost per packet</h2>
+{% if d.costs %}<div class="tw"><table><tr><th>Product</th><th class="r">Cost / packet</th><th class="r">Selling price</th><th class="r">Margin</th></tr>
+{% for s in d.costs %}<tr><td>{{s.run.product.name}} ({{s.run.run_no}})</td><td class="r">₹{{s.cost_per_packet}}</td><td class="r">{{inr(s.run.product.price_paise)}}</td><td class="r">₹{{s.margin}} ({{s.margin_pct}}%)</td></tr>{% endfor %}</table></div>
+{% else %}<p class="muted">Complete a production run to see cost per packet.</p>{% endif %}
+<h2>Stock levels</h2><div class="tw"><table><tr><th>Item</th><th class="r">On hand</th><th></th></tr>
+{% for r in d.stock %}<tr><td>{{r.item.name}}</td><td class="r">{{fmt_qty(r.item,r.qty)}} {{r.item.display_unit}}</td><td>{% if r.low %}<span class="badge warn">Below reorder level</span>{% endif %}</td></tr>{% endfor %}</table></div>
+{% if d.plan %}<h2>Production needed for open orders</h2><div class="tw"><table><tr><th>Product</th><th class="r">Ordered</th><th class="r">In stock</th><th class="r">Short</th><th class="r">Batches to make</th></tr>
+{% for p in d.plan %}<tr><td>{{p.item.name}}</td><td class="r">{{p.demand}}</td><td class="r">{{p.stock}}</td><td class="r">{{p.short}}</td><td class="r"><b>{{p.batches}}</b></td></tr>{% endfor %}</table></div>{% endif %}
+{% endblock %}

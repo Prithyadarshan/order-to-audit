@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block body %}<h1>Tax invoices</h1>
+<div class="tw"><table><tr><th>Invoice</th><th>Date</th><th>Customer</th><th class="r">Total</th><th class="r">Outstanding</th><th>Dispatch</th><th>Status</th></tr>
+{% for i in invs %}<tr><td><a href="/invoices/{{i.id}}">{{i.inv_no}}</a></td><td>{{i.date}}</td><td>{{i.customer.name}}</td><td class="r">{{inr(i.total_paise)}}</td><td class="r">{{inr(due(i))}}</td>
+<td>{{"Dispatched" if i.dispatched_at else "Pending"}}</td><td><span class="badge {{'bad' if i.status=='CANCELLED'}}">{{i.status.title()}}</span></td></tr>{% endfor %}</table></div>
+{% if not invs %}<p class="muted">Invoices appear here after an approved order is invoiced.</p>{% endif %}{% endblock %}

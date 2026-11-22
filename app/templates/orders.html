@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block body %}<h1>{{"My orders" if user.role=="salesman" else "Orders"}}</h1>
+<div class="actions">{% if user.role=="salesman" %}<a class="btn" href="/orders/new">New order</a>{% endif %}
+{% for s in ["","SUBMITTED","APPROVED","INVOICED","DISPATCHED","REJECTED"] %}<a class="btn alt" href="/orders?status={{s}}">{{s.title() or "All"}}</a>{% endfor %}</div>
+{% if orders %}<div class="tw"><table><tr><th>Order</th><th>Customer</th>{% if user.role!="salesman" %}<th>Salesman</th>{% endif %}<th>Placed</th><th class="r">Value (before tax)</th><th>Status</th></tr>
+{% for o in orders %}<tr><td><a href="/orders/{{o.id}}">{{o.order_no}}</a></td><td>{{o.customer.name}}</td>{% if user.role!="salesman" %}<td>{{o.salesman.full_name}}</td>{% endif %}<td>{{o.created_at}}</td><td class="r">{{inr(o.total_paise)}}</td>
+<td><span class="badge {{'bad' if o.status in ['REJECTED','CANCELLED'] else 'warn' if o.status=='SUBMITTED'}}">{{o.status.title()}}</span></td></tr>{% endfor %}</table></div>
+{% else %}<p class="muted">No orders yet.</p>{% endif %}{% endblock %}

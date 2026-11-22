@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block body %}<h1>Products and materials</h1>
+<div class="tw"><table><tr><th>Code</th><th>Name</th><th>Kind</th><th>Stocked in</th><th>HSN</th><th>GST %</th><th>Selling price</th><th></th></tr>
+{% for i in rows %}<tr><td>{{i.code}}</td><td>{{i.name}}</td><td>{{{"RAW":"Raw material","PACK":"Packaging","FG":"Finished product"}[i.kind]}}</td><td>{{i.display_unit}}{% if i.units_per_carton %} ({{i.units_per_carton}} per carton){% endif %}</td><td>{{i.hsn or "-"}}</td><td>{{i.gst_bp/100}}</td>
+{% if i.kind=="FG" %}<td colspan="2"><form method="post" action="/items/{{i.id}}/price" class="actions" style="margin:0"><input name="price" value="{{paise(i.price_paise)}}" style="width:6rem"><input name="gst" value="{{i.gst_bp/100}}" style="width:4rem"><button class="alt">Update</button></form></td>{% else %}<td>-</td><td></td>{% endif %}</tr>{% endfor %}</table></div>
+<form method="post" action="/items" class="card"><b>Add an item</b><div class="row"><div><label>Code</label><input name="code" required></div><div><label>Name</label><input name="name" required></div>
+<div><label>Kind</label><select name="kind"><option value="RAW">Raw material</option><option value="PACK">Packaging</option><option value="FG">Finished product</option></select></div>
+<div><label>Stocked in</label><select name="unit"><option>kg</option><option>L</option><option>pcs</option><option>packet</option></select></div>
+<div><label>HSN</label><input name="hsn"></div><div><label>GST %</label><input name="gst" value="5"></div><div><label>Selling price ₹ (products)</label><input name="price" value="0"></div>
+<div><label>Packets per carton</label><input name="per_carton" type="number"></div><div><label>Shelf life (days)</label><input name="shelf_life" type="number"></div><div><label>Reorder level</label><input name="reorder" value="0"></div></div><p><button>Add item</button></p></form>{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% block body %}<h1>{{order.order_no}} <span class="badge">{{order.status.title()}}</span></h1>
+<p class="muted">{{order.customer.name}} · {{order.customer.state}} · taken by {{order.salesman.full_name}} on {{order.created_at}}{% if order.note %} · Note: {{order.note}}{% endif %}</p>
+{% if order.reject_reason %}<div class="flash err">Rejected: {{order.reject_reason}}</div>{% endif %}
+{% if short %}<div class="flash err"><b>Not enough finished goods.</b> {% for c in check if c.shortage %}{{c.item.name}}: ordered {{c.required}}, available {{c.available}}, short by <b>{{c.shortage}}</b>. {% endfor %}Reduce the quantity, wait for production, or reject.</div>{% endif %}
+{% if user.role=="admin" and order.status in ["SUBMITTED","APPROVED"] %}<form method="post" action="/orders/{{order.id}}/edit">{% endif %}
+<div class="tw"><table><tr><th>Product</th><th class="r">Qty (packets)</th><th class="r">Price</th><th class="r">Amount</th>{% if check %}<th class="r">Available</th><th class="r">Short</th>{% endif %}</tr>
+{% for l in order.lines %}<tr><td>{{l.item.name}}</td>
+{% if user.role=="admin" and order.status in ["SUBMITTED","APPROVED"] %}<td class="r"><input style="width:6rem" name="qty_{{l.id}}" value="{{l.qty}}" type="number" min="0"></td><td class="r"><input style="width:6rem" name="price_{{l.id}}" value="{{paise(l.price_paise)}}"></td>
+{% else %}<td class="r">{{l.qty}}</td><td class="r">{{inr(l.price_paise)}}</td>{% endif %}<td class="r">{{inr(l.qty*l.price_paise)}}</td>
+{% if check %}{% set c=check[loop.index0] %}<td class="r">{{c.available}}</td><td class="r {{'bad' if c.shortage}}">{{c.shortage or "-"}}</td>{% endif %}</tr>{% endfor %}</table></div>
+{% if user.role=="admin" and order.status in ["SUBMITTED","APPROVED"] %}<div class="actions"><button class="alt">Save quantity and price changes</button></div></form>{% endif %}
+<div class="card"><b>Tax if invoiced</b> ({{"CGST + SGST, supply within " ~ FACTORY.state if intra else "IGST, place of supply " ~ order.customer.state}}):
+Taxable {{inr(tax.taxable)}}{% if intra %} · CGST {{inr(tax.cgst)}} · SGST {{inr(tax.sgst)}}{% else %} · IGST {{inr(tax.igst)}}{% endif %} · <b>Total {{inr(tax.total)}}</b></div>
+{% if user.role=="admin" %}<div class="actions">
+{% if order.status=="SUBMITTED" %}<form method="post" action="/orders/{{order.id}}/approve"><button>Approve</button></form>
+{% if short %}<form method="post" action="/orders/{{order.id}}/reduce"><button class="alt">Reduce to available stock</button></form>{% endif %}{% endif %}
+{% if order.status=="APPROVED" %}<form method="post" action="/orders/{{order.id}}/invoice"><button>Raise GST invoice</button></form>{% endif %}
+{% if order.status in ["SUBMITTED","APPROVED"] %}<form method="post" action="/orders/{{order.id}}/reject"><input name="reason" placeholder="Reason" style="width:14rem"><button class="danger">Reject</button></form>{% endif %}
+{% if order.invoice %}<a class="btn alt" href="/invoices/{{order.invoice.id}}">Open invoice {{order.invoice.inv_no}}</a>{% endif %}</div>{% endif %}{% endblock %}
