@@ -39,6 +39,17 @@ figcaption{margin-top:8px;color:var(--mute);font-size:.94rem}figcaption b{color:
 .logins td:first-child{font-weight:600}
 footer{background:#14201b;color:#cfe0d6;padding:28px 0;font-size:.94rem}footer a{color:#fff}
 @media(max-width:560px){.shots{grid-template-columns:1fr}}
+
+#try-live .sapp{display:grid;grid-template-columns:minmax(320px,400px) 1fr;gap:18px;align-items:start}@media(max-width:860px){#try-live .sapp{grid-template-columns:1fr}}
+#sim .sc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px 18px;margin-bottom:16px}#sim h2{font-size:1rem;margin:0 0 8px}#sim h2 span{color:var(--green)}
+#sim label{display:block;font-size:.88rem;font-weight:600;color:var(--ink);margin:12px 0 4px}#sim input,#sim select{width:100%;padding:10px 12px;border:1px solid #b9c5be;border-radius:8px;font:inherit;background:#fff}
+#sim input:focus,#sim select:focus,#sim button:focus-visible{outline:2px solid #c98a00;outline-offset:1px}
+#sim .g2,#sim .g3{display:grid;grid-template-columns:1fr;gap:0}
+#sim .sbtns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}#sim button{background:var(--green);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}#sim button.alt{background:#fff;color:var(--green);border:1px solid var(--green)}
+#sim .skpis{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:14px}#sim .skpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}#sim .skpi b{display:block;font-size:1.4rem}#sim .skpi span{color:var(--mute);font-size:.85rem}
+#sim table{font-size:.92rem}#sim th,#sim td{padding:7px 9px}#sim .r{text-align:right}#sim .flag{color:#9a6700;font-weight:700}#sim .bad{color:#a83232;font-weight:700}
+#sim .note{padding:9px 12px;border-radius:8px;margin:0 0 8px;font-size:.92rem}#sim .note.w1{background:#fbf0d4}#sim .note.e{background:#f8e1e1;color:#6d1f1f}#sim .note.g{background:var(--leaf)}
+.flag{color:#9a6700;font-weight:700}.slive{color:var(--green);font-weight:600;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -49,7 +60,7 @@ footer{background:#14201b;color:#cfe0d6;padding:28px 0;font-size:.94rem}footer a
 <div class="btns">
 <a class="btn" id="live" href="#" hidden>Open live demo</a>
 <a class="btn alt" id="video" href="#" hidden>Watch demo video</a>
-<a class="btn alt" href="https://github.com/prithyadarshan/order-to-audit">View source on GitHub</a>
+<a class="btn" href="#try-live">Try it live</a><a class="btn alt" href="https://github.com/prithyadarshan/order-to-audit">View source on GitHub</a>
 </div>
 <div class="stats">
 <div class="stat"><b>20 / 20</b><span>benchmark checks match</span></div>
@@ -86,22 +97,43 @@ footer{background:#14201b;color:#cfe0d6;padding:28px 0;font-size:.94rem}footer a
 
 <section id="benchmark"><div class="wrap">
 <h2>A full scenario, run end to end</h2>
-<p class="sub">Forty kilograms of flour into 200 packets of 200 g murukku. These numbers come from the running system and match the expected values.</p>
-<div class="tw"><table>
-<tr><th>Check</th><th>Expected</th><th>This system</th><th></th></tr>
-<tr><td>Flour closing balance</td><td>120 kg</td><td>120 kg</td><td class="ok">✓</td></tr>
-<tr><td>Oil closing balance</td><td>19.5 L</td><td>19.5 L</td><td class="ok">✓</td></tr>
-<tr><td>Pouches closing balance</td><td>306</td><td>306</td><td class="ok">✓</td></tr>
-<tr><td>Finished goods after the run / after dispatch</td><td>238 / 88</td><td>238 / 88</td><td class="ok">✓</td></tr>
-<tr><td>Yield variance (188 vs 200)</td><td>−6%, flagged</td><td>−6.00%, flagged</td><td class="ok">✓</td></tr>
-<tr><td>Oil variance</td><td>+5%, flagged</td><td>+5.00%, flagged</td><td class="ok">✓</td></tr>
-<tr><td>Retailer A invoice</td><td>₹7,500 + ₹187.50 + ₹187.50 = ₹7,875</td><td>identical</td><td class="ok">✓</td></tr>
-<tr><td>Retailer A outstanding after ₹4,000</td><td>₹3,875</td><td>₹3,875</td><td class="ok">✓</td></tr>
-<tr><td>Distributor B, 120 packets</td><td>Shortage of 32, IGST if invoiced</td><td>Short by 32, approval blocked, IGST shown</td><td class="ok">✓</td></tr>
-<tr><td>Cost per packet</td><td>Method stated in the design note</td><td><b>₹31.14</b> (weighted-average materials ₹4,055 + overheads ₹1,800, over 188 packets)</td><td class="ok">✓</td></tr>
-</table></div>
+<p class="sub">Forty kilograms of flour into 200 packets of 200 g murukku. The live result column is calculated from the simulator below, so change an input and watch which results move. <a href="#try-live">Change the inputs</a></p>
+<div class="tw"><table><tr><th>Check</th><th>Expected</th><th>Live result</th><th></th></tr><tr><td>Flour closing balance</td><td>120 kg</td><td id="b_flour">-</td><td id="b_flour_c"></td></tr><tr><td>Oil closing balance</td><td>19.5 L</td><td id="b_oil">-</td><td id="b_oil_c"></td></tr><tr><td>Pouches closing balance</td><td>306</td><td id="b_pouch">-</td><td id="b_pouch_c"></td></tr><tr><td>Finished goods after the run / after dispatch</td><td>238 / 88</td><td id="b_fg">-</td><td id="b_fg_c"></td></tr><tr><td>Yield variance (188 vs 200)</td><td>-6.00%, flagged</td><td id="b_yield">-</td><td id="b_yield_c"></td></tr><tr><td>Oil variance</td><td>+5.00%, flagged</td><td id="b_ovar">-</td><td id="b_ovar_c"></td></tr><tr><td>Retailer A invoice (₹7,500 + ₹187.50 CGST + ₹187.50 SGST)</td><td>₹7,875.00</td><td id="b_inv">-</td><td id="b_inv_c"></td></tr><tr><td>Retailer A outstanding after ₹4,000</td><td>₹3,875.00</td><td id="b_out">-</td><td id="b_out_c"></td></tr><tr><td>Distributor B, 120 packets</td><td>Short by 32, IGST ₹300.00</td><td id="b_dist">-</td><td id="b_dist_c"></td></tr><tr><td>Cost per packet (weighted-average method)</td><td>₹31.14</td><td id="b_cpp">-</td><td id="b_cpp_c"></td></tr></table></div>
 </div></section>
 
+<section id="try-live"><div class="wrap"><h2>Try it live</h2><p class="sub">Enter your own purchases, production output, orders and payments. Everything recalculates as you type, with the same rules as the full system, and the worked example above follows your inputs. <span class="slive">● Updates as you type</span> · Runs in your browser; nothing is sent anywhere.</p><div id="sim"><div class="sapp">
+<form id="f" onsubmit="return false" autocomplete="off">
+<div class="sbtns"><button type="button" id="bench">Load benchmark values</button><button type="button" class="alt" id="clear">Clear inputs</button></div><div class="sc"><label for="scen" style="margin-top:0">Sample scenarios: fills every box in one click</label><select id="scen"><option value="">Choose a sample...</option><option value="0">1. Clean batch, nothing flagged</option><option value="1">2. Higher flour price changes the average cost</option><option value="2">3. Poor yield and heavy wastage</option><option value="3">4. Two batches, both orders fit</option><option value="4">5. Not enough flour in stock</option><option value="5">6. Both orders inside Tamil Nadu</option></select></div>
+
+<div class="sc"><h2><span>1</span> Settings</h2><div class="g3">
+<div><label for="tol">Variance tolerance %</label><input id="tol" placeholder="3" inputmode="decimal"></div>
+<div><label for="price">Selling price ₹ / packet</label><input id="price" placeholder="50" inputmode="decimal"></div>
+<div><label for="gst">GST rate %</label><input id="gst" placeholder="5" inputmode="decimal"></div></div></div>
+
+<div class="sc"><h2><span>2</span> Purchase (raw or packaging)</h2><div class="g3">
+<div><label for="pItem">Item</label><select id="pItem"><option value="flour">Flour (kg)</option><option value="oil">Cooking oil (L)</option><option value="spice">Spice mix (kg)</option><option value="pouch">Pouches (pcs)</option><option value="carton">Cartons (pcs)</option></select></div>
+<div><label for="pQty">Quantity</label><input id="pQty" placeholder="e.g. 60" inputmode="decimal"></div>
+<div><label for="pRate">Rate ₹ / unit</label><input id="pRate" placeholder="e.g. 45" inputmode="decimal"></div></div></div>
+
+<div class="sc"><h2><span>3</span> Production run (recipe: 40 kg flour, 10 L oil, 1.2 kg spice, 200 pouches, 10 cartons = 200 packets)</h2>
+<div class="g2"><div><label for="batches">Batches</label><input id="batches" placeholder="1" inputmode="numeric"></div><div><label for="good">Good packets made</label><input id="good" placeholder="e.g. 188" inputmode="numeric"></div></div>
+<div class="g3"><div><label for="iFlour">Flour issued (kg)</label><input id="iFlour" placeholder="e.g. 40" inputmode="decimal"></div><div><label for="iOil">Oil issued (L)</label><input id="iOil" placeholder="e.g. 10.5" inputmode="decimal"></div><div><label for="iSpice">Spice issued (kg)</label><input id="iSpice" placeholder="e.g. 1.2" inputmode="decimal"></div></div>
+<div class="g3"><div><label for="damaged">Damaged pouches</label><input id="damaged" placeholder="e.g. 6" inputmode="numeric"></div><div><label for="cartons">Cartons used</label><input id="cartons" placeholder="e.g. 9" inputmode="numeric"></div><div><label for="labour">Labour ₹</label><input id="labour" placeholder="e.g. 1200" inputmode="decimal"></div></div>
+<div class="g2"><div><label for="power">Gas / power ₹</label><input id="power" placeholder="e.g. 600" inputmode="decimal"></div></div></div>
+
+<div class="sc"><h2><span>4</span> Orders, processed in this order</h2>
+<div class="g2"><div><label for="o1q">Order 1 packets</label><input id="o1q" placeholder="e.g. 150" inputmode="numeric"></div><div><label for="o1s">Order 1 customer state</label><select id="o1s"></select></div>
+<div><label for="o2q">Order 2 packets</label><input id="o2q" placeholder="e.g. 120" inputmode="numeric"></div><div><label for="o2s">Order 2 customer state</label><select id="o2s"></select></div></div>
+<label for="pay">Payment received against Order 1 (₹)</label><input id="pay" placeholder="e.g. 4000" inputmode="decimal"></div>
+</form>
+
+<div aria-live="polite">
+<div class="skpis" id="kpis"></div><div id="msgs"></div>
+<div class="sc"><h2>Stock after all transactions</h2><div class="tw"><table id="stock"></table></div></div>
+<div class="sc"><h2>Planned vs actual</h2><div class="tw"><table id="var"></table></div></div>
+<div class="sc"><h2>Orders and GST invoices</h2><div class="tw"><table id="ord"></table></div></div>
+<div class="sc"><h2>Cost of the run</h2><div class="tw"><table id="cost"></table></div></div>
+</div></div></div></div></section>
 <section id="screens"><div class="wrap">
 <h2>Screens from the running system</h2><p class="sub">Real pages captured after the benchmark run.</p>
 <div class="shots">
@@ -143,6 +175,69 @@ footer{background:#14201b;color:#cfe0d6;padding:28px 0;font-size:.94rem}footer a
 // Fill these two in after you deploy and upload the video. A button stays hidden while its link is empty.
 const LINKS = { live: "", video: "" };
 for (const k of ["live", "video"]) { const a = document.getElementById(k); if (LINKS[k]) { a.href = LINKS[k]; a.hidden = false; } }
+</script>
+<script>
+const ITEMS={flour:["Flour","kg",1000],oil:["Cooking oil","L",1000],spice:["Salt and spice mix","kg",1000],pouch:["200 g pouch","pcs",1],carton:["Carton","pcs",1],fg:["Murukku 200 g (finished)","packets",1]};
+const OPEN={flour:[100000,420000],oil:[30000,420000],spice:[5000,100000],pouch:[500,125000],carton:[30,45000],fg:[50,150000]};
+const BOM={flour:40000,oil:10000,spice:1200,pouch:200,carton:10},YIELD=200;
+const STATES=["Tamil Nadu","Karnataka","Kerala","Andhra Pradesh","Telangana","Maharashtra"],HOME="Tamil Nadu";
+const BENCH={tol:"3",price:"50",gst:"5",pItem:"flour",pQty:"60",pRate:"45",batches:"1",good:"188",iFlour:"40",iOil:"10.5",iSpice:"1.2",damaged:"6",cartons:"9",labour:"1200",power:"600",o1q:"150",o1s:"Tamil Nadu",o2q:"120",o2s:"Karnataka",pay:"4000"};
+//<compute>
+const rd=(n,d)=>{const s=(n<0)!==(d<0)?-1:1;n=Math.abs(n);d=Math.abs(d);return s*Math.floor((2*n+d)/(2*d))};
+const num=(s,m)=>{const x=parseFloat(String(s).replace(/,/g,""));return isFinite(x)&&x>0?Math.round(x*m+1e-9):0};
+function compute(v){
+ const tol=parseFloat(v.tol)||0,price=num(v.price,100),bp=num(v.gst,100),warn=[],bal={};
+ for(const k in OPEN)bal[k]={q:OPEN[k][0],v:OPEN[k][1]};
+ const p=ITEMS[v.pItem],pq=num(v.pQty,p[2]),pv=rd(pq*num(v.pRate,100),p[2]);bal[v.pItem].q+=pq;bal[v.pItem].v+=pv;
+ const issue=(k,q,label)=>{const b=bal[k];if(q>b.q){warn.push("Not enough "+ITEMS[k][0]+" in stock for "+label+": short by "+fq(k,q-b.q)+" "+ITEMS[k][1]+". Only the available amount was issued.");q=b.q}
+  const val=q>=b.q?b.v:rd(b.v*q,b.q);b.q-=q;b.v-=val;return[q,val]};
+ const nb=Math.max(1,parseInt(v.batches)||1),good=parseInt(v.good)||0,dam=parseInt(v.damaged)||0,rows=[];let mat=0;
+ const act={flour:num(v.iFlour,1000),oil:num(v.iOil,1000),spice:num(v.iSpice,1000),pouch:good+dam,carton:parseInt(v.cartons)||0};
+ for(const k of ["flour","oil","spice","pouch","carton"]){const pl=BOM[k]*nb,[a,val]=issue(k,act[k],"the production run");mat+=val;
+  const vp=pl?Math.round((a-pl)*10000/pl)/100:0;rows.push({k,pl,a,vp,flag:Math.abs(vp)>tol,val})}
+ const exp=YIELD*nb,yv=exp?Math.round((good-exp)*10000/exp)/100:0,oh=num(v.labour,100)+num(v.power,100),total=mat+oh;
+ bal.fg.q+=good;bal.fg.v+=total;const fgRun=bal.fg.q;
+ const cpp=good>0?rd(total,good):0,margin=price-cpp,mpct=price?Math.round(margin*1000/price)/10:0;
+ const orders=[[v.o1q,v.o1s],[v.o2q,v.o2s]].map(([q,st],i)=>{q=parseInt(q)||0;if(!q)return{i:i+1,q:0};
+  const taxable=q*price,tax=rd(taxable*bp,10000),intra=st===HOME,cg=intra?Math.floor(tax/2):0,sg=intra?tax-cg:0,ig=intra?0:tax,avail=bal.fg.q,short=Math.max(q-avail,0);
+  const o={i:i+1,q,st,taxable,cg,sg,ig,total:taxable+tax,avail,short,done:short===0};if(o.done)issue("fg",q,"order "+(i+1));return o});
+ const o1=orders[0],pay=num(v.pay,100),paid=o1.done?Math.min(pay,o1.total):0;
+ if(pay&&!o1.done)warn.push("Payment ignored: Order 1 is not invoiced yet.");if(o1.done&&pay>o1.total)warn.push("Payment is more than the invoice; only "+inr(o1.total)+" counted.");
+ return{bal,fgRun,rows,exp,good,yv,yflag:Math.abs(yv)>tol,mat,oh,total,cpp,margin,mpct,orders,outstanding:o1.done?o1.total-paid:null,warn,price};
+}
+function fq(k,b){return(b/ITEMS[k][2]).toLocaleString("en-IN",{maximumFractionDigits:3})}
+function inr(p){return"₹"+(p/100).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}
+//</compute>
+const $=id=>document.getElementById(id),ids=Object.keys(BENCH);
+for(const s of [$("o1s"),$("o2s")])s.innerHTML=STATES.map(x=>`<option>${x}</option>`).join("");
+const read=()=>Object.fromEntries(ids.map(i=>[i,$(i).value]));
+const set=o=>{ids.forEach(i=>$(i).value=o[i]);render()};
+const tb=(h,rs)=>`<tr>${h.map(x=>`<th class="${x[1]||""}">${x[0]}</th>`).join("")}</tr>`+rs.map(r=>`<tr>${r.map((c,j)=>`<td class="${h[j][1]||""}">${c}</td>`).join("")}</tr>`).join("");
+function render(){
+ const r=compute(read()),b=r.bal,pct=x=>(x>0?"+":"")+x.toFixed(2)+"%";
+ $("kpis").innerHTML=[[r.good?inr(r.cpp):"-","Cost per good packet"],[r.good?inr(r.margin)+" ("+r.mpct+"%)":"-","Margin per packet"],[fq("fg",b.fg.q),"Finished packets in stock"],[r.outstanding===null?"-":inr(r.outstanding),"Order 1 outstanding"]].map(([a,t])=>`<div class="skpi"><b>${a}</b><span>${t}</span></div>`).join("");
+ const alerts=r.rows.filter(x=>x.flag).map(x=>ITEMS[x.k][0]+" "+pct(x.vp)).concat(r.yflag?["Yield "+pct(r.yv)]:[]);
+ $("msgs").innerHTML=(alerts.length?`<p class="note w1"><b>Outside tolerance:</b> ${alerts.join(" · ")}</p>`:`<p class="note g">All variances are within tolerance.</p>`)+r.warn.map(w=>`<p class="note e">${w}</p>`).join("");
+ $("stock").innerHTML=tb([["Item"],["Closing quantity","r"],["Unit"],["Value","r"]],Object.keys(ITEMS).map(k=>[ITEMS[k][0],fq(k,b[k].q),ITEMS[k][1],inr(b[k].v)]));
+ $("var").innerHTML=tb([["Item"],["Planned","r"],["Actual","r"],["Variance","r"],["Alert"]],r.rows.map(x=>[ITEMS[x.k][0],fq(x.k,x.pl),fq(x.k,x.a),pct(x.vp),x.flag?'<span class="flag">Flagged</span>':'<span class="ok">OK</span>'])
+  .concat([["Finished packets",r.exp,r.good,pct(r.yv),r.yflag?'<span class="flag">Flagged</span>':'<span class="ok">OK</span>']]));
+ $("ord").innerHTML=tb([["Order"],["Packets","r"],["Customer state"],["Taxable","r"],["CGST","r"],["SGST","r"],["IGST","r"],["Invoice total","r"],["Result"]],r.orders.filter(o=>o.q).map(o=>[o.i,o.q,o.st,inr(o.taxable),inr(o.cg),inr(o.sg),inr(o.ig),inr(o.total),
+  o.done?'<span class="ok">Approved, invoiced, dispatched</span>':`<span class="bad">Blocked: ${o.avail} in stock, short by ${o.short}</span>`+" (IGST/CGST shown if invoiced)"]));
+ $("cost").innerHTML=tb([["Component"],["Amount","r"]],[["Materials (weighted-average cost)",inr(r.mat)],["Labour + gas/power",inr(r.oh)],["<b>Total cost</b>","<b>"+inr(r.total)+"</b>"],["Good packets",r.good],["<b>Cost per packet</b>","<b>"+(r.good?inr(r.cpp):"-")+"</b>"],["Selling price",inr(r.price)]]);renderBench(r);
+}
+$("f").addEventListener("input",render);$("f").addEventListener("change",render);
+$("bench").onclick=()=>set(BENCH);$("clear").onclick=()=>set(Object.fromEntries(ids.map(i=>[i,i==="pItem"?"flour":i==="o1s"||i==="o2s"?HOME:i==="tol"?"3":i==="price"?"50":i==="gst"?"5":i==="batches"?"1":""])));
+const EXP={"b_flour": "120 kg", "b_oil": "19.5 L", "b_pouch": "306", "b_fg": "238 / 88", "b_yield": "-6.00%, flagged", "b_ovar": "+5.00%, flagged", "b_inv": "₹7,875.00", "b_out": "₹3,875.00", "b_dist": "Short by 32, IGST ₹300.00", "b_cpp": "₹31.14"};
+function renderBench(r){const b=r.bal,o1=r.orders[0],o2=r.orders[1],sg=x=>(x>0?"+":"")+x.toFixed(2)+"%";
+ const live={b_flour:fq("flour",b.flour.q)+" kg",b_oil:fq("oil",b.oil.q)+" L",b_pouch:fq("pouch",b.pouch.q),b_fg:r.fgRun+" / "+fq("fg",b.fg.q),
+  b_yield:sg(r.yv)+(r.yflag?", flagged":""),b_ovar:sg(r.rows[1].vp)+(r.rows[1].flag?", flagged":""),b_inv:o1.q&&o1.done?inr(o1.total):"not invoiced",
+  b_out:r.outstanding===null?"-":inr(r.outstanding),b_dist:!o2.q?"no order":o2.done?"Invoiced":"Short by "+o2.short+", "+(o2.ig?"IGST "+inr(o2.ig):"CGST + SGST"),b_cpp:r.good?inr(r.cpp):"-"};
+ for(const k in EXP){document.getElementById(k).textContent=live[k];document.getElementById(k+"_c").innerHTML=live[k]===EXP[k]?'<span class="ok">✓</span>':'<span class="flag">differs</span>'}}
+const SCEN=[{"iOil": "10", "good": "200", "damaged": "0", "cartons": "10", "o2q": "40", "pay": "3000"}, {"pQty": "100", "pRate": "50"}, {"good": "150", "damaged": "40", "cartons": "8"}, {"batches": "2", "iFlour": "80", "iOil": "20", "iSpice": "2.4", "good": "390", "damaged": "8", "cartons": "20", "o2q": "200"}, {"iFlour": "200"}, {"o2q": "80", "o2s": "Tamil Nadu"}];
+$("scen").addEventListener("change",e=>{const o=SCEN[e.target.value];if(o)set({...BENCH,...o})});
+$("bench").addEventListener("click",()=>{$("scen").value=""});$("clear").addEventListener("click",()=>{$("scen").value=""});
+set(BENCH);
+
 </script>
 </body>
 </html>
